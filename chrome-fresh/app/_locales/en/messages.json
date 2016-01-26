@@ -1,0 +1,10 @@
+{
+    "appName": {
+        "message": "Code.org Serial Connector",
+        "description": "The name of the application"
+    },
+    "appDescription": {
+        "message": "Serial port connector for Code.org's physical computing unit",
+        "description": "The description of the application"
+    }
+}

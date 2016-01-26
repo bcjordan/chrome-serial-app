@@ -1,0 +1,9 @@
+{
+  "name": "chrome-fresh",
+  "version": "0.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "~3.4.2",
+    "mocha": "~2.4.1"
+  }
+}
