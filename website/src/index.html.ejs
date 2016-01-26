@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style/index.css">
+  <script src="<%= appBundle %>"></script>
+  <script src="test-build-only/jquery-1.7.min.js"></script>
+  <script src="test-build-only/soundEffects.js"></script>
+  <script src="test-build-only/levels.js"></script>
+  <style>
+    .description {
+      font-size: small;
+      color: gray;
+      margin-left: 15px;
+    }
+    pre {
+      margin: 0;
+    }
+  </style>
+  <title>Phaser App Playground</title>
+</head>
+<body>
+
+<div id="phaser-game" style="float:left;"></div>
+
+<textarea id="test-code-area" style="float:left; width:300px; height:300px;"></textarea>
+<div style="margin:10px; clear:both;"></div>
+<button id="run-button">Run</button>
+<button id="reset-button">Reset</button>
+<div style="margin:10px; clear:both;"></div>
+<p id="delay-display"></p>
+<div style="margin:10px; clear:both;"></div>
+<button id="previous-level">Previous level</button>
+<button id="refresh-button">Refresh</button>
+<button id="next-level">Next level</button>
+<div style="margin:10px; clear:both;"></div>
+<div>Level instructions: <span id="level-instructions" style="font-weight:bold;"></span></div>
+<div>Level feedback: <span id="level-feedback" style="font-weight:bold;"></span></div>
+<div>
+  <h2>Using test commands:</h2>
+  <ul>
+    <tt><pre>blinkLED();</pre></tt> <span class="description">blinks LED</span>
+  </ul>
+</div>
+
+<script>
+  var demoLevels = window.demoLevels;
+
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+      results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  var levelNumber = parseInt(getParameterByName('level') || 1, 10);
+  var testLevelToLoad = demoLevels[levelNumber];
+
+  $('#test-code-area').val(testLevelToLoad.solutionCode);
+  $('#level-instructions').html(testLevelToLoad.instructions);
+
+  var replacements = {
+    "do{": "function(){"
+  };
+
+  function isFunction(functionToCheck) {
+     var getType = {};
+     return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+  }
+
+  function shortHandToApiCalls(shortHandCode) {
+    $.each(replacements, function(key, value) {
+      shortHandCode = shortHandCode.split(key).join(value);
+    });
+    return shortHandCode;
+  }
+
+  function runCodeWithParams(code, options) {
+    // execute JS code "natively"
+    var params = [];
+    var args = [];
+    for (var k in options) {
+      params.push(k);
+      args.push(options[k]);
+    }
+    params.push(code);
+    var ctor = function() {
+      return Function.apply(this, params);
+    };
+    ctor.prototype = Function.prototype;
+    return new ctor().apply(null, args);
+  }
+
+  $('#run-button').click(function () {
+    var shortHandCode = $('#test-code-area').val();
+    var code = shortHandToApiCalls(shortHandCode);
+
+    runCodeWithParams(code, {
+      blinkLED: function() {
+        console.log("Blinking LED");
+      },
+    });
+  });
+
+  $('#reset-button').click(function () {
+    console.log("Resetting");
+  });
+
+  $("#refresh-button").click(function() {
+    window.location.reload();
+  });
+
+  if (!demoLevels[levelNumber - 1]) {
+    $('#previous-level').hide();
+  }
+
+  if (!demoLevels[levelNumber + 1]) {
+    $('#next-level').hide();
+  }
+
+  $('#next-level').click(function() {
+    window.location.href = window.location.href.split("?")[0] + "?level=" + (levelNumber + 1);
+  });
+
+  $('#previous-level').click(function() {
+    window.location.href = window.location.href.split("?")[0] + "?level=" + (levelNumber - 1);
+  });
+</script>
+
+<% if (liveReloadPort) { %>
+<script>
+  document.write(
+    '<script src="//'
+    + window.location.hostname
+    + ':<%= liveReloadPort %>/livereload.js"><\/script>'
+  );
+</script>
+<% } %>
+
+</body>
+</html>
