@@ -30,13 +30,9 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
-      bower: {
-        files: ['bower.json'],
-        tasks: ['bowerInstall']
-      },
       js: {
         files: ['<%= config.app %>/scripts/{,*/}*.js'],
-        tasks: ['jshint'],
+        tasks: ['jshint', 'copy'],
         options: {
           livereload: true
         }
@@ -72,18 +68,7 @@ module.exports = function (grunt) {
         livereload: 35729,
         // change this to '0.0.0.0' to access the server from outside
         hostname: 'localhost',
-        open: true,
-      },
-      server: {
-        options: {
-          middleware: function(connect) {
-            return [
-              connect.static('.tmp'),
-              connect().use('/bower_components', connect.static('./bower_components')),
-              connect.static(config.app)
-            ];
-          }
-        }
+        open: false,
       },
       chrome: {
         options: {
@@ -135,22 +120,14 @@ module.exports = function (grunt) {
     },
 
     // Mocha testing framework configuration options
-    mocha: {
-      all: {
-        options: {
-          run: true,
-          urls: ['http://localhost:<%= connect.options.port %>/index.html']
-        }
-      }
-    },
-
-    // Automatically inject Bower components into the HTML file
-    bowerInstall: {
-      app: {
-        src: ['<%= config.app %>/index.html'],
-        ignorePath: '<%= config.app %>/'
-      }
-    },
+    //mocha: {
+    //  all: {
+    //    options: {
+    //      run: false,
+    //      urls: ['http://localhost:<%= connect.options.port %>/index.html']
+    //    }
+    //  }
+    //},
 
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
@@ -221,28 +198,28 @@ module.exports = function (grunt) {
     // By default, your `index.html`'s <!-- Usemin block --> will take care of
     // minification. These next options are pre-configured if you do not wish
     // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css',
-    //         '<%= config.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/scripts/scripts.js': [
-    //         '<%= config.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
+    cssmin: {
+      dist: {
+        files: {
+          '<%= config.dist %>/styles/main.css': [
+            '.tmp/styles/{,*/}*.css',
+            '<%= config.app %>/styles/{,*/}*.css'
+          ]
+        }
+      }
+    },
+    //uglify: {
+    //  dist: {
+    //    files: {
+    //      '<%= config.dist %>/scripts/scripts.js': [
+    //        '<%= config.dist %>/scripts/scripts.js'
+    //      ]
+    //    }
+    //  }
+    //},
+    concat: {
+      dist: {}
+    },
 
     // Copies remaining files to places other tasks can use
     copy: {
@@ -258,6 +235,7 @@ module.exports = function (grunt) {
             '{,*/}*.html',
             'styles/fonts/{,*/}*.*',
             '_locales/{,*/}*.json',
+            '{,*/}*.js'
           ]
         }]
       },
@@ -296,7 +274,7 @@ module.exports = function (grunt) {
           background: {
             target: 'scripts/background.js',
             exclude: [
-              'scripts/chromereload.js'
+              //'scripts/chromereload.js'
             ]
           }
         },
@@ -309,7 +287,7 @@ module.exports = function (grunt) {
     compress: {
       dist: {
         options: {
-          archive: function() {
+          archive: function () {
             var manifest = grunt.file.readJSON('app/manifest.json');
             return 'package/chrome fresh-' + manifest.version + '.zip';
           }
@@ -328,7 +306,6 @@ module.exports = function (grunt) {
     var watch = grunt.config('watch');
     platform = platform || 'chrome';
 
-
     // Configure style task for debug:server task
     if (platform === 'server') {
       watch.styles.tasks = ['newer:copy:styles'];
@@ -340,16 +317,15 @@ module.exports = function (grunt) {
     grunt.config('watch', watch);
 
     grunt.task.run([
-      'clean:' + platform,
+      'clean:dist',
       'concurrent:' + platform,
-      'connect:' + platform,
       'watch'
     ]);
   });
 
   grunt.registerTask('test', [
     'connect:test',
-    'mocha'
+    //'mocha'
   ]);
 
   grunt.registerTask('build', [
