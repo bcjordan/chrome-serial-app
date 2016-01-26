@@ -17,12 +17,15 @@
     pre {
       margin: 0;
     }
+    body {
+      padding: 20px;
+    }
   </style>
-  <title>Phaser App Playground</title>
+  <title>Physical Computing Plugin Playground</title>
 </head>
 <body>
 
-<div id="phaser-game" style="float:left;"></div>
+<div id="visualization-area" style="float:left;"></div>
 
 <textarea id="test-code-area" style="float:left; width:300px; height:300px;"></textarea>
 <div style="margin:10px; clear:both;"></div>
@@ -38,7 +41,7 @@
 <div>Level instructions: <span id="level-instructions" style="font-weight:bold;"></span></div>
 <div>Level feedback: <span id="level-feedback" style="font-weight:bold;"></span></div>
 <div>
-  <h2>Using test commands:</h2>
+  <h2>Sample function calls:</h2>
   <ul>
     <tt><pre>blinkLED();</pre></tt> <span class="description">blinks LED</span>
   </ul>
@@ -95,6 +98,19 @@
   $('#run-button').click(function () {
     var shortHandCode = $('#test-code-area').val();
     var code = shortHandToApiCalls(shortHandCode);
+
+    chrome.runtime.sendMessage("ldeaebgomhbepkgdfgjlkbacejelhino",
+      {
+        messageType: 'runCode',
+        messageData: {
+          sourceCode: shortHandCode
+        }
+      },
+      (response) => console.log(response)
+    );
+
+    return; // return early, testing PoC
+
 
     runCodeWithParams(code, {
       blinkLED: function() {

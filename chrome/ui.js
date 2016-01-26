@@ -55,7 +55,7 @@ require('./styles.less');
 
 var React = require('react');
 
-var editor = React.render(React.createElement(Editor), document.getElementById('editor'));
+//var editor = React.render(React.createElement(Editor), document.getElementById('editor'));
 startApp();
 var serialSelect;
 
@@ -195,6 +195,10 @@ function handleKeypress(evt){
 }
 
 function startupJ5(){
+  //runThisJ5Code(editor.state.content);
+}
+
+function runThisJ5Code(newCode) {
   connectedSerial = new SerialPort(serialSelect.state.selectedDevice, {
     baudrate: 57600,
     buffersize: 1
@@ -207,12 +211,29 @@ function startupJ5(){
   });
 
   console.log('posting runScript');
-  scriptfs.set(editor.state.content, function(err){
+  scriptfs.set(newCode, function(err){
     console.log('data saved', err);
   });
   queuedMsg = {
     command: 'runScript',
-    payload: editor.state.content
+    payload: newCode
   };
   sandboxFrame.src = sandboxFrame.src + '';
 }
+
+
+chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
+  console.log("I am a chrome app. I received a maybe runnable message:");
+  console.log(request.messageType);
+  console.log(request.messageData.sourceCode);
+  runThisJ5Code(request.messageData.sourceCode);
+  sendResponse("I am a Chrome app. This is my response.");
+});
+
+
+//chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
+//  console.log("I am a chrome app. I received a message:");
+//  console.log(request);
+//  console.log(sendResponse("I am a Chrome app. This is my response."));
+//});
+//

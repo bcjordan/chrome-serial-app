@@ -35,16 +35,10 @@
     "tcp": {
       "connect": "*:*"
     }
+  },
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:3017/*"
+    ]
   }
-//  "externally_connectable": {
-//    "matches": [
-//      "http://*/*",
-//      "https://*/*",
-//    ]
-//  },
-
-//  "permissions": [
-//    "alwaysOnTopWindows",
-//    "serial"
-//  ]
 }
