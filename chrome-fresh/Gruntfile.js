@@ -1,11 +1,4 @@
-// Generated on 2016-01-26 using generator-chromeapp 0.2.19
 'use strict';
-
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
 
@@ -13,15 +6,20 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   // Time how long tasks take. Can help when optimizing build times
-  require('time-grunt')(grunt);
+  //require('time-grunt')(grunt);
+
+  var path = require('path');
+  var pluginFolder = path.resolve() + '/dist';
 
   // Configurable paths
   var config = {
     app: 'app',
     dist: 'dist',
-    tasks: grunt.cli.tasks
+    tasks: grunt.cli.tasks,
+    pluginFolder: pluginFolder
   };
 
+  console.log(config.pluginFolder);
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -32,7 +30,7 @@ module.exports = function (grunt) {
     watch: {
       js: {
         files: ['<%= config.app %>/scripts/{,*/}*.js'],
-        tasks: ['jshint', 'copy'],
+        tasks: ['copy'],
         options: {
           livereload: true
         }
@@ -40,20 +38,11 @@ module.exports = function (grunt) {
       gruntfile: {
         files: ['Gruntfile.js']
       },
-      styles: {
-        files: ['<%= config.app %>/styles/{,*/}*.css'],
-        tasks: [],
-        options: {
-          livereload: true
-        }
-      },
       livereload: {
         options: {
-          livereload: '<%= connect.options.livereload %>'
+          livereload: 35729 // TODO(bjordan): provide to grunt?
         },
         files: [
-          '.tmp/styles/{,*/}*.css',
-          '<%= config.app %>/*.html',
           '<%= config.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '<%= config.app %>/manifest.json',
           '<%= config.app %>/_locales/{,*/}*.json'
@@ -61,45 +50,13 @@ module.exports = function (grunt) {
       }
     },
 
-    // Grunt server and debug server settings
-    connect: {
-      options: {
-        port: 9000,
-        livereload: 35729,
-        // change this to '0.0.0.0' to access the server from outside
-        hostname: 'localhost',
-        open: false,
-      },
-      chrome: {
-        options: {
-          open: true,
-          base: [
-            '<%= config.app %>'
-          ]
-        }
-      },
-      test: {
-        options: {
-          open: false,
-          base: [
-            'test',
-            '<%= config.app %>'
-          ]
-        }
-      }
-    },
-
     // Empties folders to start fresh
     clean: {
-      server: '.tmp',
-      chrome: '.tmp',
       dist: {
         files: [{
           dot: true,
           src: [
-            '.tmp',
             '<%= config.dist %>/*',
-            '!<%= config.dist %>/.git*'
           ]
         }]
       }
@@ -119,109 +76,6 @@ module.exports = function (grunt) {
       ]
     },
 
-    // Mocha testing framework configuration options
-    //mocha: {
-    //  all: {
-    //    options: {
-    //      run: false,
-    //      urls: ['http://localhost:<%= connect.options.port %>/index.html']
-    //    }
-    //  }
-    //},
-
-    // Reads HTML for usemin blocks to enable smart builds that automatically
-    // concat, minify and revision files. Creates configurations in memory so
-    // additional tasks can operate on them
-    useminPrepare: {
-      options: {
-        dest: '<%= config.dist %>'
-      },
-      html: [
-        '<%= config.app %>/index.html'
-      ]
-    },
-
-    // Performs rewrites based on rev and the useminPrepare configuration
-    usemin: {
-      options: {
-        assetsDirs: ['<%= config.dist %>', '<%= config.dist %>/images']
-      },
-      html: ['<%= config.dist %>/{,*/}*.html'],
-      css: ['<%= config.dist %>/styles/{,*/}*.css']
-    },
-
-    // The following *-min tasks produce minified files in the dist folder
-    imagemin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= config.app %>/images',
-          src: '{,*/}*.{gif,jpeg,jpg,png}',
-          dest: '<%= config.dist %>/images'
-        }]
-      }
-    },
-
-    svgmin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= config.app %>/images',
-          src: '{,*/}*.svg',
-          dest: '<%= config.dist %>/images'
-        }]
-      }
-    },
-
-    htmlmin: {
-      dist: {
-        options: {
-          customAttrAssign: [/\?=/],
-          collapseBooleanAttributes: true,
-          collapseWhitespace: true,
-          removeAttributeQuotes: true,
-          removeCommentsFromCDATA: true,
-          removeEmptyAttributes: true,
-          removeOptionalTags: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true
-        },
-        files: [{
-          expand: true,
-          cwd: '<%= config.dist %>',
-          src: '{,*/}*.html',
-          dest: '<%= config.dist %>'
-        }]
-      }
-    },
-
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    cssmin: {
-      dist: {
-        files: {
-          '<%= config.dist %>/styles/main.css': [
-            '.tmp/styles/{,*/}*.css',
-            '<%= config.app %>/styles/{,*/}*.css'
-          ]
-        }
-      }
-    },
-    //uglify: {
-    //  dist: {
-    //    files: {
-    //      '<%= config.dist %>/scripts/scripts.js': [
-    //        '<%= config.dist %>/scripts/scripts.js'
-    //      ]
-    //    }
-    //  }
-    //},
-    concat: {
-      dist: {}
-    },
-
-    // Copies remaining files to places other tasks can use
     copy: {
       dist: {
         files: [{
@@ -231,51 +85,30 @@ module.exports = function (grunt) {
           dest: '<%= config.dist %>',
           src: [
             '*.{ico,png,txt}',
-            'images/{,*/}*.{webp,gif}',
-            '{,*/}*.html',
+            'manifest.json',
+            'images/{,*/}*.{webp,gif,png}',
             'styles/fonts/{,*/}*.*',
             '_locales/{,*/}*.json',
             '{,*/}*.js'
           ]
         }]
       },
-      styles: {
-        expand: true,
-        dot: true,
-        cwd: '<%= config.app %>/styles',
-        dest: '.tmp/styles/',
-        src: '{,*/}*.css'
+    },
+
+    concurrent: {
+      chromeOpenLiveReload: ['exec:appOpen', 'watch'],
+      options: {
+        logConcurrentOutput: true
       }
     },
 
-    // Run some tasks in parallel to speed up build process
-    concurrent: {
-      server: [
-        'copy:styles'
-      ],
-      chrome: [
-        'copy:styles'
-      ],
-      dist: [
-        'copy:styles',
-        'imagemin',
-        'svgmin'
-      ],
-      test: [
-        'copy:styles'
-      ],
-    },
-
-    // Merge event page, update build number, exclude the debug script
+    // Update build number, potentially exclude given script
     chromeManifest: {
       dist: {
         options: {
           buildnumber: true,
           background: {
             target: 'scripts/background.js',
-            exclude: [
-              //'scripts/chromereload.js'
-            ]
           }
         },
         src: '<%= config.app %>',
@@ -283,13 +116,13 @@ module.exports = function (grunt) {
       }
     },
 
-    // Compress files in dist to make Chromea Apps package
+    // Compress files in dist to make installable Chrome Apps package
     compress: {
       dist: {
         options: {
           archive: function () {
             var manifest = grunt.file.readJSON('app/manifest.json');
-            return 'package/chrome fresh-' + manifest.version + '.zip';
+            return 'package/CDOSerialTest-' + manifest.version + '.zip';
           }
         },
         files: [{
@@ -299,52 +132,32 @@ module.exports = function (grunt) {
           dest: ''
         }]
       }
+    },
+
+    exec: {
+      appOpen: {
+        cmd: '~/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --load-and-launch-app="<%= config.pluginFolder %>"'
+      }
     }
   });
 
-  grunt.registerTask('debug', function (platform) {
-    var watch = grunt.config('watch');
-    platform = platform || 'chrome';
-
-    // Configure style task for debug:server task
-    if (platform === 'server') {
-      watch.styles.tasks = ['newer:copy:styles'];
-      watch.styles.options.livereload = false;
-
-    }
-
-    // Configure updated watch task
-    grunt.config('watch', watch);
-
-    grunt.task.run([
-      'clean:dist',
-      'concurrent:' + platform,
-      'watch'
-    ]);
-  });
-
-  grunt.registerTask('test', [
-    'connect:test',
-    //'mocha'
-  ]);
+  // TODO(bjordan): add watch task, maybe build & watch task?
+  // maybe combine gruntfiles?
 
   grunt.registerTask('build', [
+    //'newer:jshint',
     'clean:dist',
-    'chromeManifest:dist',
-    'useminPrepare',
-    'concurrent:dist',
-    'concat',
-    'cssmin',
-    'uglify',
     'copy',
-    'usemin',
-    'htmlmin',
-    'compress'
   ]);
 
-  grunt.registerTask('default', [
-    'newer:jshint',
-    'test',
-    'build'
+  grunt.registerTask('distribute', [
+    'chromeManifest:dist',
+    'build',
+    'compress:dist'
+  ]);
+
+  grunt.registerTask('dev', [
+    'build',
+    'concurrent:chromeOpenLiveReload'
   ]);
 };
