@@ -1,4 +1,4 @@
-import './chromereload' // TODO(bjordan): only if dev mode
+import AppLiveReloader from './AppLiveReloader' // TODO(bjordan): only if dev mode
 import WebpageAPI from './WebpageAPI'
 
 export default class ExtensionController {
@@ -7,11 +7,14 @@ export default class ExtensionController {
 
     this.webpageAPI = new WebpageAPI(this);
 
-
+    this.liveReloader = new AppLiveReloader({
+      chromeRuntime: chrome.runtime,
+      host: 'localhost',
+      port: 35729
+    });
   }
 }
 
-window.extensionController = new ExtensionController();
-
-
-
+chrome.app.runtime.onLaunched.addListener(function () {
+  window.extensionController = new ExtensionController();
+});

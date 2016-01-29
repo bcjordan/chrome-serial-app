@@ -1,3 +1,7 @@
+/**
+ * Interface for webpages to interact with
+ * TODO(bjordan): May need layer to pass through Chrome message/connection API?
+ */
 export default class WebpageAPI {
   constructor(extensionController) {
 
