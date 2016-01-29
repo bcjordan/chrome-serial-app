@@ -19,7 +19,6 @@
     "browserify": "^10.2.4",
     "browserify-shim": "^3.8.9",
     "grunt": "^0.4.5",
-    "grunt-aws-s3-gzip": "^0.10.1",
     "grunt-browserify": "*",
     "grunt-cache-bust": "^0.4.13",
     "grunt-contrib-clean": "^0.6.0",

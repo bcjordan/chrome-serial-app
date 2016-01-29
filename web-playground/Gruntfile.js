@@ -6,14 +6,11 @@
 var devBuildConfig = require('./dev-build-config.js');
 
 module.exports = function (grunt) {
-  var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'deploy');
+  var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'distribute');
   var liveReloadPort = deployBuild ? false : devBuildConfig.liveReloadPort;
 
-  var deployName;
   if (deployBuild) {
-    deployName = grunt.option("name") || "unnamed";
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-aws-s3');
   }
 
   // Bundles up `require`s in javascript
@@ -94,7 +91,7 @@ module.exports = function (grunt) {
         options: {
           transform: [
             'browserify-shim',
-            ['babelify', {only: /game/}] // transform ES6 -> ES5 for game/ code
+            'babelify'
           ],
           watch: true,
           browserifyOptions: {
@@ -106,8 +103,6 @@ module.exports = function (grunt) {
     },
     open: {
       server: {path: 'http://localhost:<%= project.port %>'},
-      deployed: {path: 'https://s3-us-west-1.amazonaws.com/cdo-j5-test/'
-        + deployName + '/index.html'}
     },
     clean: ['./build/'],
     copy: {
@@ -136,29 +131,6 @@ module.exports = function (grunt) {
         }]
       }
     },
-    aws: deployBuild ? grunt.file.readJSON('../../.secrets/aws-keys.json') : {},
-    aws_s3: {
-      options: {
-        accessKeyId: '<%= aws.AWSAccessKeyId %>',
-        secretAccessKey: '<%= aws.AWSSecretKey %>',
-        uploadConcurrency: 20,
-        downloadConcurrency: 20,
-        region: 'us-west-1',
-        gzip: true
-      },
-      test: {
-        options: {
-          bucket: 'cdo-j5-test',
-          differential: true
-        },
-        files: [{
-          expand: true,
-          cwd: 'build/',
-          src: ['**'],
-          dest: deployName + '/'
-        }]
-      }
-    },
     uglify: {
       build: {
         src: '<%= project.bundle %>',
@@ -177,13 +149,11 @@ module.exports = function (grunt) {
     'watch'
   ]);
 
-  grunt.registerTask('deploy', [
+  grunt.registerTask('distribute', [
     'clean',
     'browserify',
     'uglify',
     'ejs',
-    'copy',
-    'aws_s3:test',
-    'open:deployed'
+    'copy'
   ]);
 };

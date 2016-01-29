@@ -1,6 +1,10 @@
 'use strict';
 
 module.exports = function (grunt) {
+  var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'distribute');
+  var deployName = grunt.option("name") && 'deploy';
+
+  var testPemFile = '../../../.secrets/chrome-app-test.pem';
 
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
@@ -18,6 +22,9 @@ module.exports = function (grunt) {
     tasks: grunt.cli.tasks,
     pluginFolder: pluginFolder
   };
+
+  var manifest = grunt.file.readJSON('app/manifest.json');
+  var packagePrefix = 'package/CDOSerialTest-' + (deployName || manifest.version);
 
   console.log(config.pluginFolder);
   // Define the configuration for all the tasks
@@ -121,8 +128,7 @@ module.exports = function (grunt) {
       dist: {
         options: {
           archive: function () {
-            var manifest = grunt.file.readJSON('app/manifest.json');
-            return 'package/CDOSerialTest-' + manifest.version + '.zip';
+            return packagePrefix + '.zip';
           }
         },
         files: [{
@@ -131,6 +137,16 @@ module.exports = function (grunt) {
           src: ['**'],
           dest: ''
         }]
+      }
+    },
+
+    crx: {
+      dist: {
+        "src":  "dist/**/*",
+        "dest": packagePrefix + '.crx',
+        "options": {
+          "privateKey": testPemFile,
+        }
       }
     },
 
@@ -153,10 +169,11 @@ module.exports = function (grunt) {
   grunt.registerTask('distribute', [
     'chromeManifest:dist',
     'build',
-    'compress:dist'
+    'compress:dist',
+    'crx:dist'
   ]);
 
-  grunt.registerTask('dev', [
+  grunt.registerTask('default', [
     'build',
     'concurrent:chromeOpenLiveReload'
   ]);
