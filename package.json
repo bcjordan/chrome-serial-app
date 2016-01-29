@@ -1,0 +1,29 @@
+{
+  "name": "j5-editor-test",
+  "version": "1.0.0",
+  "description": "- Chrome app generator with distribution support https://github.com/yeoman/generator-chromeapp",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcjordan/chrome-j5-bridge.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bcjordan/chrome-j5-bridge/issues"
+  },
+  "homepage": "https://github.com/bcjordan/chrome-j5-bridge#readme",
+  "devDependencies": {
+    "concurrent": "^0.3.2",
+    "grunt": "^0.4.5",
+    "grunt-aws-s3-gzip": "^0.10.1",
+    "grunt-concurrent": "^2.1.0",
+    "grunt-copy": "^0.1.0",
+    "grunt-exec": "^0.4.6",
+    "grunt-open": "^0.2.3",
+    "load-grunt-tasks": "^3.4.0"
+  }
+}
