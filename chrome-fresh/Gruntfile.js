@@ -33,11 +33,36 @@ module.exports = function (grunt) {
     // Project settings
     config: config,
 
+    project: {
+      src: 'app/scripts',
+      js: '<%= project.src %>/{,*/}*.js',
+      dest: 'build/js',
+      bundle: 'dist/scripts/app.bundled.js',
+      bundleURL: 'scripts/app.bundled.js',
+    },
+
+    browserify: {
+      app: {
+        src: ['<%= project.src %>/ExtensionController.js'],
+        dest: '<%= project.bundle %>',
+        options: {
+          transform: [
+            'babelify'
+          ],
+          watch: true,
+          browserifyOptions: {
+            // Adds inline source map to bundled package
+            debug: !deployBuild,
+          },
+        }
+      }
+    },
+
     // Watches files for changes and runs tasks based on the changed files
     watch: {
       js: {
         files: ['<%= config.app %>/scripts/{,*/}*.js'],
-        tasks: ['copy'],
+        tasks: ['browserify', 'copy'],
         options: {
           livereload: true
         }
@@ -115,7 +140,7 @@ module.exports = function (grunt) {
         options: {
           buildnumber: true,
           background: {
-            target: 'scripts/background.js',
+            target: 'scripts/app.bundled.js',
           }
         },
         src: '<%= config.app %>',
@@ -163,6 +188,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     //'newer:jshint',
     'clean:dist',
+    'browserify',
     'copy',
   ]);
 

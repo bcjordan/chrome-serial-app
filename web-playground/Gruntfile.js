@@ -35,8 +35,8 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     project: {
-      src: 'src/js',
-      js: '<%= project.src %>/game/{,*/}*.js',
+      src: 'src/js/Playground.js',
+      js: '<%= project.src %>/{,*/}*.js',
       dest: 'build/js',
       bundle: 'build/js/app.bundled.js',
       bundleURL: 'js/app.bundled.js',
