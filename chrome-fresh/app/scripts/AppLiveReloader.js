@@ -5,7 +5,7 @@
  * reload command.
  */
 
-class AppLiveReloader {
+export default class AppLiveReloader {
   constructor({chromeRuntime, host, port}) {
     var connection = new WebSocket('ws://' + host + ':' + port + '/livereload');
 

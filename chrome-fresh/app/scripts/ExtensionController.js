@@ -1,5 +1,8 @@
+/*global chrome*/
+
 import AppLiveReloader from './AppLiveReloader' // TODO(bjordan): only if dev mode
 import WebpageAPI from './WebpageAPI'
+import ChromeSerialBridge from './ChromeSerialBridge'
 
 export default class ExtensionController {
   constructor() {
@@ -12,6 +15,8 @@ export default class ExtensionController {
       host: 'localhost',
       port: 35729
     });
+
+    this.chromeSerialBridge = new ChromeSerialBridge(chrome);
   }
 }
 
