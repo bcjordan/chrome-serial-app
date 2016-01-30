@@ -2,6 +2,7 @@
  * @file Serial port bridge
  *
  * Wrapping of Chrome app portion of chrome-serialport.
+ * @see https://github.com/jacobrosenthal/chrome-serialport/blob/master/main.js
  */
 'use strict';
 
@@ -10,10 +11,6 @@ var SerialPort = require('browser-serialport');
 export default class ChromeSerialBridge {
   constructor(chrome) {
 
-    console.log("Launched serial bridge.");
-
-
-    console.log("Hey hte thing launched!");
     //can't be global
     var serialPort;
 
