@@ -32,6 +32,8 @@ module.exports = function (grunt) {
   // Simple templates (used on Code.org)
   grunt.loadNpmTasks('grunt-ejs');
 
+  grunt.loadNpmTasks('grunt-exec');
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     project: {
@@ -90,14 +92,7 @@ module.exports = function (grunt) {
         dest: '<%= project.bundle %>',
         options: {
           transform: [
-            'babelify',
-            // TODO(bjordan): neither of below transforms are sufficient
-            // currently had to hack local node_modules version of j5
-            'serialport-transform',
-            [
-              'graspify',
-                ["squery", "\"serialport\"", "chrome-serialport"]
-            ]
+            'babelify'
           ],
           watch: true,
           browserifyOptions: {
@@ -105,6 +100,20 @@ module.exports = function (grunt) {
             debug: !deployBuild
           }
         }
+      }
+    },
+    exec: {
+      /**
+       * TODO(bjordan): find nicer way of handling this swap-out — perhaps
+       * package up new verison of j5/firmata with this?
+       */
+      replaceSerialPortFirmata: {
+        cmd: 'sed -i.bak s/browser-serialport/chrome-serialport/g firmata.js',
+        cwd: 'node_modules/johnny-five/node_modules/firmata/lib'
+      },
+      replaceSerialPortJ5: {
+        cmd: 'sed -i.bak s/require\\(\\"serialport\\"\\)/require\\(\\"chrome-serialport\\"\\)/g board.js',
+        cwd: 'node_modules/johnny-five/lib'
       }
     },
     open: {
@@ -147,6 +156,8 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'clean',
+    'exec:replaceSerialPortFirmata',
+    'exec:replaceSerialPortJ5',
     'browserify',
     'ejs',
     'copy',
@@ -157,6 +168,8 @@ module.exports = function (grunt) {
 
   grunt.registerTask('distribute', [
     'clean',
+    'exec:replaceSerialPortFirmata',
+    'exec:replaceSerialPortJ5',
     'browserify',
     'uglify',
     'ejs',
