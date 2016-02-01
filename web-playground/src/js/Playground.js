@@ -5,7 +5,8 @@ class Playground {
   constructor() {
     window.serialPort = SerialPortFactory.SerialPort;
     // TODO(bjordan): Make configurable or pull out from Chrome API
-    SerialPortFactory.extensionId = 'himpmjbkjeenflliphlaaeggkkanoglo';
+    // TODO(bjordan): conditional based on local or remote?
+    SerialPortFactory.extensionId = 'hclkodmlbbhiknnciphlcnbkglgjakmd';
 
     this.five = five;
 

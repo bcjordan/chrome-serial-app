@@ -2,7 +2,7 @@
 
 module.exports = function (grunt) {
   var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'distribute');
-  var deployName = grunt.option("name") && 'deploy';
+  var deployName = deployBuild && 'deploy';
 
   var testPemFile = '../../../.secrets/chrome-app-test.pem';
 
@@ -19,6 +19,7 @@ module.exports = function (grunt) {
   var config = {
     app: 'app',
     dist: 'dist',
+    package: 'package',
     tasks: grunt.cli.tasks,
     pluginFolder: pluginFolder
   };
@@ -89,6 +90,7 @@ module.exports = function (grunt) {
           dot: true,
           src: [
             '<%= config.dist %>/*',
+            '<%= config.package %>/*',
           ]
         }]
       }
