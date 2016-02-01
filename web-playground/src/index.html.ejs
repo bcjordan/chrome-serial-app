@@ -14,11 +14,22 @@
       color: gray;
       margin-left: 15px;
     }
+    .step-note {
+      font-size: small;
+      color: gray;
+      margin-top: -15px;
+    }
     pre {
       margin: 0;
     }
     body {
       padding: 20px;
+    }
+
+    hr {
+      width: 50%;
+      margin-top: 25px;
+      margin-bottom: 15px;
     }
   </style>
   <title>Physical Computing Plugin Playground</title>
@@ -48,15 +59,27 @@
     <tt><pre><strike>blinkLED();</strike> Simple helpers coming soon!</pre></tt> <span class="description">blinks LED</span>
   </ul>
 </div>
+<hr>
 <div>
-  <h2>Installing Drivers for boards</h2>
+  <h1>Steps for setup</h1>
+</div>
+<div>
+  <h2>Step 1: Installing Drivers for boards</h2>
   <h3>Digital Sandbox v1</h3>
   <ol>
-    <li>follow <a href="https://learn.sparkfun.com/tutorials/how-to-install-ftdi-drivers/all">these steps</a> to install the proper board drivers for your operating system</li>
+    <li>follow <a href="https://learn.sparkfun.com/tutorials/how-to-install-ftdi-drivers/all">these steps</a> to install the proper board drivers for your operating system.</li>
   </ol>
 </div>
 <div>
-  <h2>Installing/Updating Chrome Test Extension</h2>
+  <h2>Step 2: Installing Firmata on your board (temporary)</h2>
+  <p class="step-note">In the future, this may be done on this webpage via a button or automatically.</p>
+  <ol>
+    <li>Install and open <a href="https://chrome.google.com/webstore/detail/johnny-five-chrome/gjnfhdmcgnaiogffpdoiecllabiabdee?hl=en">Johnny-Five Chrome</a>, select your board, and press "Install Firmata"</li>
+  </ol>
+</div>
+<div>
+  <h2>Step 3: Installing/Updating Chrome Helper App</h2>
+  <p class="step-note">For non-dev builds, this will be a one-step install via the Chrome webstore.</p>
   <ol>
     <li>download this <a href="CDOSerialTest-deploy.crx">.crx app file</a> (right click → Save As…) — do not immediately run this file, as Chrome will complain it cannot auto-install this extension from this website</li>
     <li>open the Extensions page in Chrome (OS X: Settings → More Tools → Extensions, Windows: )</li>
