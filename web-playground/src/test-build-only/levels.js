@@ -1,29 +1,71 @@
 window.demoLevels = {
   1: {
-    instructions: "Make the LED blink!",
+    instructions: "Let's turn an LED on.",
 
     verificationFunction: function (verificationAPI) {
       return true;
     },
 
     solutionCode:
-        `
-// Given: var five = require('johnny-five');
-//        var board = new five.Board();
+`led.on();`
+  },
+  2: {
+    instructions: "Let's turn an LED on, then off after 1 second.",
 
-var ledRGB = new five.Led.RGB({
-  pins: {
-    red: 9,
-    green: 10,
-    blue: 11
-  }
-});
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
 
-ledRGB.on();
+    solutionCode:
+`led.on();
+window.setTimeout(function() {
+  led.off();
+}, 1000);
+`
+  },
+  3: {
+    instructions: "Let's blink this LED!",
+
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
+
+    solutionCode:
+`led.blink();`
+  },
+  4: {
+    instructions: "Make the button trigger the LED on.",
+
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
+
+    solutionCode:
+`button.on('down', function() { led.on(); });`
+  },
+  5: {
+    instructions: "Now make releasing the button turn the LED off.",
+
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
+
+    solutionCode:
+`
+button.on('down', function() { led.on(); });
+button.on('up', function() { led.off(); });
+`
+  },
+  6: {
+    instructions: "Now make moving the slider change the RGB LED's intensity.",
+
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
+
+    solutionCode:
+`ledRGB.on();
 ledRGB.color("#FF0000");
-
-var slider = new five.Sensor("A3");
-var button = new five.Button("12");
 
 button.on('down', function () { ledRGB.color("#FFFFFF") });
 button.on('up', function () { ledRGB.color("#00FF00") });
@@ -33,4 +75,7 @@ slider.scale([0, 180]).on("slide", function () {
 });
 `
   },
+
 };
+
+

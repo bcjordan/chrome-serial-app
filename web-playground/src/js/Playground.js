@@ -1,3 +1,5 @@
+/* global $ */
+
 import SerialPortFactory from 'chrome-serialport';
 import five from 'johnny-five';
 
@@ -12,10 +14,22 @@ class Playground {
 
     this.board = null;
 
+    this.prewiredComponents = {
+      ledRGB: null,
+      led: null,
+      temperature: null,
+      microphone: null,
+      button: null,
+      lightSensor: null,
+      slider: null
+    };
+
     SerialPortFactory.isInstalled((err) => {
       if (err) {
         console.log(err);
       }
+      console.log("Chrome extension installed! Trying to init board.");
+
       this.board = new this.five.Board({
         /**
          * Disabling REPL for now, relies on process.stdin and require('repl')
@@ -23,22 +37,31 @@ class Playground {
          */
         repl: false
       });
-      // board.on('ready' -> set some sort of state to ready
-      // board.on('error' -> forward errors to user
 
-      console.log("Chrome extension installed! Trying to init board.");
+      this.board.on('ready', () => {
+        this.prewiredComponents.ledRGB = new five.Led.RGB({
+          pins: { red: 9, green: 10, blue: 11}
+        });
+        this.prewiredComponents.led = new five.Led(13);
+        this.prewiredComponents.slider = new five.Sensor("A3");
+        this.prewiredComponents.button = new five.Button("12");
+      });
+
+      this.board.on('error', () => {
+
+      });
     });
   }
 
   runCode(code) {
     try {
-      //execute user's script
-      this.runCodeWithParams(code, {
+      var codeParams = {
         five: this.five,
         board: this.board
-      });
-    }
-    catch (e) {
+      };
+      $.extend(codeParams, this.prewiredComponents);
+      this.runCodeWithParams(code, codeParams);
+    } catch (e) {
       console.log(e, 'danger');
     }
   }
