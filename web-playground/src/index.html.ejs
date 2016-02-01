@@ -71,6 +71,8 @@
 </div>
 
 <script>
+  var playground = new Playground();
+
   var demoLevels = window.demoLevels;
 
   function getParameterByName(name) {
@@ -102,44 +104,20 @@
     return shortHandCode;
   }
 
-  function runCodeWithParams(code, options) {
-    // execute JS code "natively"
-    var params = [];
-    var args = [];
-    for (var k in options) {
-      params.push(k);
-      args.push(options[k]);
-    }
-    params.push(code);
-    var ctor = function() {
-      return Function.apply(this, params);
-    };
-    ctor.prototype = Function.prototype;
-    return new ctor().apply(null, args);
-  }
-
   $('#run-button').click(function () {
     var shortHandCode = $('#test-code-area').val();
     var code = shortHandToApiCalls(shortHandCode);
 
-    chrome.runtime.sendMessage("ldeaebgomhbepkgdfgjlkbacejelhino",
-      {
-        messageType: 'runCode',
-        messageData: {
-          sourceCode: shortHandCode
-        }
-      },
-      (response) => console.log(response)
-    );
+    playground.runCode(code);
 
     return; // return early, testing PoC
 
-
-    runCodeWithParams(code, {
-      blinkLED: function() {
-        console.log("Blinking LED");
-      },
-    });
+//
+//    runCodeWithParams(code, {
+//      blinkLED: function() {
+//        console.log("Blinking LED");
+//      },
+//    });
   });
 
   $('#reset-button').click(function () {

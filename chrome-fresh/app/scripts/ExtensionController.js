@@ -20,6 +20,4 @@ export default class ExtensionController {
   }
 }
 
-chrome.app.runtime.onLaunched.addListener(function () {
-  window.extensionController = new ExtensionController();
-});
+window.extensionController = new ExtensionController();

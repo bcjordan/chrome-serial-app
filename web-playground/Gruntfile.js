@@ -35,7 +35,7 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     project: {
-      src: 'src/js/Playground.js',
+      src: 'src',
       js: '<%= project.src %>/{,*/}*.js',
       dest: 'build/js',
       bundle: 'build/js/app.bundled.js',
@@ -86,12 +86,18 @@ module.exports = function (grunt) {
     },
     browserify: {
       app: {
-        src: ['<%= project.src %>/game/GameController.js'],
+        src: ['<%= project.src %>/js/Playground.js'],
         dest: '<%= project.bundle %>',
         options: {
           transform: [
-            'browserify-shim',
-            'babelify'
+            'babelify',
+            // TODO(bjordan): neither of below transforms are sufficient
+            // currently had to hack local node_modules version of j5
+            'serialport-transform',
+            [
+              'graspify',
+                ["squery", "\"serialport\"", "chrome-serialport"]
+            ]
           ],
           watch: true,
           browserifyOptions: {

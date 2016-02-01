@@ -26,6 +26,7 @@
     "grunt-copy": "^0.1.0",
     "grunt-exec": "^0.4.6",
     "grunt-open": "^0.2.3",
-    "load-grunt-tasks": "^3.4.0"
+    "load-grunt-tasks": "^3.4.0",
+    "mock-firmata": "0.0.6"
   }
 }

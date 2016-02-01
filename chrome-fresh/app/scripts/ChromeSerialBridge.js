@@ -10,11 +10,40 @@ var SerialPort = require('browser-serialport');
 
 export default class ChromeSerialBridge {
   constructor(chrome) {
+    console.log("Constructing serial bridge.");
 
-    //can't be global
-    var serialPort;
+    /**
+     * @type {SerialPort}
+     */
+    var serialPort; // initialized during onMessageExternal 'construct' command
 
-    //data channel
+    /**
+     * Sets up two channels of communication:
+     *
+     * # "port/connect/data" (onConnectExternal): opens up a port of communication
+     *   with the client webpage, forwarding serial data
+     *
+     * Serial -> web client port.postMessage
+     *   - disconnect -> onDisconnect
+     *   - error -> onError
+     *   - close -> onClose
+     *   - data -> data
+     *   Web client port.onMessage -> serial
+     *   - msg.data -> serial
+     *   - onDisconnect -> close serial port
+     * # "message/command" (onMessageExternal): one off commands
+     *
+     * Web client onMessage -> resp.(data|error)
+     *   - list
+     *   - getManifest
+     *   - list
+     *   - construct{path:, options:} -> connects to given serial port
+     *   - open
+     *   - close
+     *   - drain
+     *   - flush
+     */
+
     chrome.runtime.onConnectExternal.addListener(function (port) {
       console.log('socket opened');
 
@@ -156,6 +185,8 @@ export default class ChromeSerialBridge {
       if (!cmds.hasOwnProperty(msg.op)) {
         return responder({error: 'Unknown op'});
       }
+
+      console.log(`Received message with operation ${msg.op}`);
 
       cmds[msg.op]();
 

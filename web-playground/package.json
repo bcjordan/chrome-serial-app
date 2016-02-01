@@ -12,8 +12,7 @@
   },
   "author": "Code.org Contributors",
   "license": "MIT",
-  "browserify-shim": {
-  },
+  "browserify-shim": {},
   "dependencies": {
     "babelify": "^6.3.0",
     "browserify": "^10.2.4",
@@ -29,5 +28,11 @@
     "grunt-contrib-watch": "*",
     "grunt-ejs": "^0.3.0",
     "grunt-open": "*"
+  },
+  "devDependencies": {
+    "chrome-serialport": "^0.1.2",
+    "graspify": "^2.0.3",
+    "johnny-five": "^0.9.19",
+    "serialport-transform": "^1.0.3"
   }
 }

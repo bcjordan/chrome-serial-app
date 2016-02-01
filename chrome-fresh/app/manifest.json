@@ -1,7 +1,7 @@
 {
     "name": "__MSG_appName__",
     "description": "__MSG_appDescription__",
-    "version": "3",
+    "version": "4",
     "manifest_version": 2,
     "default_locale": "en",
     "permissions": [
@@ -19,5 +19,11 @@
                 "scripts/app.bundled.js"
             ]
         }
+    },
+    "externally_connectable": {
+        "matches": [
+            "http://localhost:3017/*",
+            "https://s3-us-west-1.amazonaws.com/cdo-j5-test/*"
+        ]
     }
 }
