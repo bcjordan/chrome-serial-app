@@ -4,7 +4,8 @@ module.exports = function (grunt) {
   var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'distribute');
   var deployName = deployBuild && 'deploy';
 
-  var testPemFile = '../../../.secrets/chrome-app-test.pem';
+  var buildConfig = require('../build-config.js');
+  var pemFile = buildConfig.chrome_signing_pem.replace('~', process.env['HOME']);
 
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
@@ -169,10 +170,10 @@ module.exports = function (grunt) {
 
     crx: {
       dist: {
-        "src":  "dist/**/*",
+        "src": "dist/**/*",
         "dest": packagePrefix + '.crx',
         "options": {
-          "privateKey": testPemFile,
+          "privateKey": pemFile,
         }
       }
     },
@@ -180,21 +181,37 @@ module.exports = function (grunt) {
     exec: {
       appOpen: {
         cmd: '~/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --load-and-launch-app="<%= config.pluginFolder %>"'
+      },
+      checkPemSpecified: {
+        cmd: function () {
+          if (!!pemFile) {
+            throw 'No .pem signing file path specified.';
+          }
+          return true;
+        }
       }
     }
   });
 
-  // TODO(bjordan): add watch task, maybe build & watch task?
-  // maybe combine gruntfiles?
+  grunt.registerTask('checkPemSpecified', 'Confirms .pem file is specified, complaining if not.',
+    function () {
+      if (!pemFile) {
+        grunt.log.writeln('Create a .pem file at https://developer.chrome.com/extensions/packaging#creating');
+        grunt.log.writeln('And link to it in ../build-config.json');
+        return false;
+      }
+      return true;
+    });
 
   grunt.registerTask('build', [
-    //'newer:jshint',
+    //'newer:jshint', // TODO(bjordan): Add back.
     'clean:dist',
     'browserify',
-    'copy',
+    'copy'
   ]);
 
   grunt.registerTask('distribute', [
+    'checkPemSpecified',
     'chromeManifest:dist',
     'build',
     'compress:dist',

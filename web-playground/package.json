@@ -33,6 +33,7 @@
     "chrome-serialport": "^0.1.2",
     "graspify": "^2.0.3",
     "grunt-exec": "^0.4.6",
+    "grunt-template": "^0.2.3",
     "johnny-five": "^0.9.19",
     "serialport-transform": "^1.0.3"
   }

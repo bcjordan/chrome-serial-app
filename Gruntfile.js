@@ -9,13 +9,16 @@ module.exports = function (grunt) {
   var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'deploy');
   var deployName = grunt.option("name") || "unnamed";
 
+  var devBuildConfig = require('./build-config.js');
+  var s3KeysSpecified = !!devBuildConfig.s3_keys_file;
+
   grunt.initConfig({
-    aws: deployBuild ? grunt.file.readJSON('../../.secrets/aws-keys.json') : {},
+    aws_keys: deployBuild && s3KeysSpecified ? grunt.file.readJSON(devBuildConfig.s3_keys_file.replace('~', process.env['HOME'])) : {},
     aws_s3: {
       options: {
         access: 'public-read',
-        accessKeyId: '<%= aws.AWSAccessKeyId %>',
-        secretAccessKey: '<%= aws.AWSSecretKey %>',
+        accessKeyId: '<%= aws_keys.AWSAccessKeyId %>',
+        secretAccessKey: '<%= aws_keys.AWSSecretKey %>',
         uploadConcurrency: 20,
         downloadConcurrency: 20,
         region: 'us-west-1',
@@ -79,9 +82,17 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('deploy', [
+  grunt.registerTask('deploy',
+      s3KeysSpecified ?
+          ['build', 'uploadAndOpen'] :
+          ['build']);
+
+  grunt.registerTask('build', [
     'exec:buildChromeApp',
-    'exec:buildWebPlayground',
+    'exec:buildWebPlayground'
+  ]);
+
+  grunt.registerTask('uploadAndOpen', [
     'aws_s3:test',
     'open:deployed'
   ]);

@@ -4,6 +4,7 @@
  */
 
 var devBuildConfig = require('./dev-build-config.js');
+var buildConfig = require('../build-config.js');
 
 module.exports = function (grunt) {
   var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'distribute');
@@ -33,6 +34,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-ejs');
 
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-template');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -102,6 +104,20 @@ module.exports = function (grunt) {
         }
       }
     },
+    template: {
+      chromeExtensionIdTemplate: {
+        options: {
+          data: {
+            chromeExtensionId: deployBuild ?
+                buildConfig.chrome_deploy_extension_id :
+                buildConfig.chrome_dev_extension_id
+          }
+        },
+        files: {
+          'src/js/chromeConnectorConfig.js': ['src/js/chromeConnectorConfig.js.tpl']
+        }
+      }
+    },
     exec: {
       /**
        * TODO(bjordan): find nicer way of handling this swap-out — perhaps
@@ -155,11 +171,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('default', [
-    'clean',
-    'exec:replaceSerialPortFirmata',
-    'exec:replaceSerialPortJ5',
-    'browserify',
-    'ejs',
+    'cleanReplaceBuild',
     'copy',
     'connect',
     'open:server',
@@ -167,12 +179,17 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('distribute', [
+    'cleanReplaceBuild',
+    'uglify',
+    'copy'
+  ]);
+
+  grunt.registerTask('cleanReplaceBuild', [
     'clean',
     'exec:replaceSerialPortFirmata',
     'exec:replaceSerialPortJ5',
+    'template:chromeExtensionIdTemplate',
     'browserify',
-    'uglify',
-    'ejs',
-    'copy'
+    'ejs'
   ]);
 };

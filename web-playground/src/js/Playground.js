@@ -2,13 +2,12 @@
 
 import SerialPortFactory from 'chrome-serialport';
 import five from 'johnny-five';
+import {chromeExtensionId} from './chromeConnectorConfig';
 
 class Playground {
   constructor() {
     window.serialPort = SerialPortFactory.SerialPort;
-    // TODO(bjordan): Make configurable or pull out from Chrome API
-    // TODO(bjordan): conditional based on local or remote?
-    SerialPortFactory.extensionId = 'hclkodmlbbhiknnciphlcnbkglgjakmd'; // dev: himpmjbkjeenflliphlaaeggkkanoglo
+    SerialPortFactory.extensionId = chromeExtensionId;
 
     this.five = five;
 
@@ -21,6 +20,13 @@ class Playground {
       microphone: null,
       button: null,
       lightSensor: null,
+      led4: null,
+      led5: null,
+      led6: null,
+      led7: null,
+      led8: null,
+      thermometer: null,
+      light: null,
       slider: null
     };
 
@@ -40,10 +46,30 @@ class Playground {
 
       this.board.on('ready', () => {
         this.prewiredComponents.ledRGB = new five.Led.RGB({
-          pins: { red: 9, green: 10, blue: 11}
+          pins: {red: 9, green: 10, blue: 11}
+        });
+        this.prewiredComponents.thermometer = new five.Thermometer({
+          pin: "A0"
         });
         this.prewiredComponents.led = new five.Led(13);
+        this.prewiredComponents.led4 = new five.Led(4);
+        this.prewiredComponents.led5 = new five.Led(5);
+        this.prewiredComponents.led6 = new five.Led(6);
+        this.prewiredComponents.led7 = new five.Led(7);
+        this.prewiredComponents.led8 = new five.Led(8);
+        this.prewiredComponents.ledBar = [
+          this.prewiredComponents.led4,
+          this.prewiredComponents.led5,
+          this.prewiredComponents.led6,
+          this.prewiredComponents.led7,
+          this.prewiredComponents.led8,
+        ];
         this.prewiredComponents.slider = new five.Sensor("A3");
+        this.prewiredComponents.microphone = new five.Sensor("A2");
+        this.prewiredComponents.light = new five.Sensor({
+          pin: "A1",
+          freq: 250
+        });
         this.prewiredComponents.button = new five.Button("12");
       });
 
