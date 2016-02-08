@@ -2,8 +2,9 @@ Work-in-progress Website (Johnny-Five) -> Chrome App -> Serial playground.
 
 # Setup
 
-You need to run `npm install` in the top level directory and both project directories.
+To start, install `npm`, and run `npm install` in the top level directory and both project directories.
 
+1. Install node and npm. Most recently tested with node v0.12.7 and npm v2.9.1
 1. `npm install`
 1. `cd chrome-fresh && npm install && cd ..`
 1. `cd web-playground && npm install && cd ..`
