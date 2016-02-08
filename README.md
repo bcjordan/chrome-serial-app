@@ -1,13 +1,22 @@
 Work-in-progress Website (Johnny-Five) -> Chrome App -> Serial playground.
 
-# Tasks
+# Setup
+
+You need to run `npm install` in the top level directory and both project directories.
+
+1. `npm install`
+1. `cd chrome-fresh && npm install && cd ..`
+1. `cd web-playground && npm install && cd ..`
+
+# Running code
 
 ## Development mode
 
-1. `npm install`
 2. `grunt`
 
-This will start a development server for the playground page, launch Google Chrome with the Chrome App running, and live-reload both on changes. 
+This will start a development server for the playground page, launch Google Chrome with the Chrome App running, and live-reload both on changes.
+
+Test "levels" can be edited in `web-playground/src/test-build-only/levels.js`
 
 ## Building both [& optional deploy to S3]
 
