@@ -42,7 +42,8 @@ module.exports = function (grunt) {
       src: 'src',
       js: '<%= project.src %>/{,*/}*.js',
       dest: 'build/js',
-      bundle: 'build/js/app.bundled.js',
+      bridgeClientBundle: 'build/js/bridge.bundled.js',
+      playgroundBundle: 'build/js/app.bundled.js',
       bundleURL: 'js/app.bundled.js',
       port: devBuildConfig.port
     },
@@ -91,7 +92,21 @@ module.exports = function (grunt) {
     browserify: {
       app: {
         src: ['<%= project.src %>/js/Playground.js'],
-        dest: '<%= project.bundle %>',
+        dest: '<%= project.playgroundBundle %>',
+        options: {
+          transform: [
+            'babelify'
+          ],
+          watch: true,
+          browserifyOptions: {
+            // Adds inline source map to bundled package
+            debug: !deployBuild
+          }
+        }
+      },
+      bridge: {
+        src: ['<%= project.src %>/js/J5BridgeClient.js'],
+        dest: '<%= project.bridgeClientBundle %>',
         options: {
           transform: [
             'babelify'
@@ -164,32 +179,43 @@ module.exports = function (grunt) {
     },
     uglify: {
       build: {
-        src: '<%= project.bundle %>',
-        dest: '<%= project.bundle %>'
+        src: '<%= project.playgroundBundle %>',
+        dest: '<%= project.playgroundBundle %>'
       }
     }
   });
 
   grunt.registerTask('default', [
-    'cleanReplaceBuild',
-    'copy',
+    'build',
     'connect',
     'open:server',
     'watch'
   ]);
 
   grunt.registerTask('distribute', [
-    'cleanReplaceBuild',
+    'build',
     'uglify',
-    'copy'
   ]);
 
-  grunt.registerTask('cleanReplaceBuild', [
+  grunt.registerTask('package', [
     'clean',
     'exec:replaceSerialPortFirmata',
     'exec:replaceSerialPortJ5',
+    'browserify:app',
     'template:chromeExtensionIdTemplate',
-    'browserify',
-    'ejs'
+    'browserify:bridge',
+    'ejs',
+    'copy'
+  ]);
+
+  grunt.registerTask('build', [
+    'clean',
+    'exec:replaceSerialPortFirmata',
+    'exec:replaceSerialPortJ5',
+    'browserify:app',
+    'template:chromeExtensionIdTemplate',
+    'browserify:bridge',
+    'ejs',
+    'copy'
   ]);
 };
