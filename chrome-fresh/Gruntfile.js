@@ -45,7 +45,10 @@ module.exports = function (grunt) {
 
     browserify: {
       app: {
-        src: ['<%= project.src %>/ExtensionController.js'],
+        src: [deployBuild ?
+          '<%= project.src %>/ExtensionController.js' :
+          '<%= project.src %>/DevExtensionController.js'
+        ],
         dest: '<%= project.bundle %>',
         options: {
           transform: [
