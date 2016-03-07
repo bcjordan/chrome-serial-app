@@ -3,7 +3,6 @@
 import J5BridgeClient from './J5BridgeClient';
 import {list, SerialPort} from 'chrome-serialport';
 import PlaygroundIO from 'playground-io';
-import songs from 'j5-songs';
 
 /**
  * Required for browserified Johnny-Five Piezo support.
@@ -55,7 +54,6 @@ export default class Playground {
           var codeParams = {
             five: this.five,
             board: board,
-            songs: songs,
             /**
              * Override setInterval/setTimeout so we can stop them.
              * In full Applab IDE, interpreter cleans these up itself.

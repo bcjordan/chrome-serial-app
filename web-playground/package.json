@@ -36,7 +36,6 @@
     "grunt-exec": "^0.4.6",
     "grunt-open": "*",
     "grunt-template": "^0.2.3",
-    "j5-songs": "0.0.9",
     "johnny-five": "^0.9.27",
     "playground-io": "0.0.2",
     "serialport-transform": "^1.0.3"
