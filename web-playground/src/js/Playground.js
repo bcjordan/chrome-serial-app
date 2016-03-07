@@ -135,6 +135,15 @@ export default class Playground {
       pin: "A0",
       freq: 100
     });
+
+    this.prewiredComponents.light = new five.Sensor({
+      pin: "A5",
+      freq: 100
+    });
+    this.prewiredComponents.sound = new five.Sensor({
+      pin: "A4",
+      freq: 100
+    });
   }
 
   setupPrewiredSandbox(five) {

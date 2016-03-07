@@ -747,11 +747,40 @@ piezo.play({
     },
 
     solutionCode: `
-
 thermometer.on("data", function() {
   console.log("celsius: %d", this.C);
   console.log("fahrenheit: %d", this.F);
   console.log("kelvin: %d", this.K);
+});
+`
+  },
+
+  15: {
+    instructions: "Now play the current light level as a sound.",
+
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
+
+    solutionCode: `
+light.on("data", function() {
+  piezo.frequency(this.value);
+});
+`
+  },
+
+  16: {
+    instructions: "Now play the current sound level as a sound.",
+
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
+
+    solutionCode: `
+
+sound.scale([0, 100]).on("data", function() {
+  console.log(this.value);
+  pixels[0].intensity((this.value - 30) * 10);
 });
 `
   },
