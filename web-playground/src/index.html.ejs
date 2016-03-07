@@ -8,6 +8,7 @@
   <script src="test-build-only/jquery-1.7.min.js"></script>
   <script src="test-build-only/soundEffects.js"></script>
   <script src="test-build-only/levels.js"></script>
+  <script src="test-build-only/levels-circuit.js"></script>
   <style>
     .description {
       font-size: small;
@@ -56,7 +57,7 @@
 <div style="font-size: 30px">Level instructions: <span id="level-instructions" style="font-weight:bold;"></span></div>
 <div style="display: none">Level feedback: <span id="level-feedback" style="font-weight:bold;"></span></div>
 <div>
-  <h2>Sample function calls:</h2>
+  <h2>Sample function calls (TODO 3/7: update for Circuit Playground):</h2>
   <ul>
     <tt><pre>led.on();</pre></tt> <span class="description">turns LED on</span>
     <tt><pre>led.off();</pre></tt> <span class="description">turns LED off</span>
@@ -83,11 +84,6 @@
 </div>
 <div>
   <h2>[Try skipping] Step 1: Install Windows/OS X driver for your board</h2>
-  <h3>Digital Sandbox v1</h3>
-  <ol>
-    <li>follow <a href="https://learn.sparkfun.com/tutorials/how-to-install-ftdi-drivers/all">these steps</a> to install the proper board drivers for your operating system.</li>
-    <li>if that doesn't seem to work, try going through the <a href="http://codebender.cc">Codebender install flow</a> (reg. required) and using their driver installer.</li>
-  </ol>
 </div>
 <div>
   <h2>Step 2: Upload Firmata sketch to your board (temporary)</h2>
@@ -120,7 +116,6 @@
 <script>
   var playground = new Playground();
 
-  var demoLevels = window.demoLevels;
 
   function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -129,13 +124,16 @@
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 
+  var demoLevels = window.circuitLevels;// : window.demoLevels;
   var levelNumber = parseInt(getParameterByName('level') || 1, 10);
   var testLevelToLoad = demoLevels[levelNumber];
 
   $('#test-code-area').val(
-    window.localStorage.getItem('codeLevel' + levelNumber) ||
-    testLevelToLoad.startingCode ||
-    "// write code here");
+    testLevelToLoad.solutionCode
+//    window.localStorage.getItem('codeLevel' + levelNumber) ||
+//    testLevelToLoad.startingCode ||
+//    "// write code here"
+  );
   $('#level-instructions').html(testLevelToLoad.instructions);
 
   var replacements = {
@@ -172,11 +170,11 @@
   });
 
   $('#reset-button').click(function () {
-    window.location.reload();
+    console.log("resetting");
+    playground.resetCode();
   });
 
   $("#refresh-button").click(function() {
-    window.location.reload();
   });
 
   $("#start-over-button").click(function() {

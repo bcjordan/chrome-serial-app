@@ -18,6 +18,7 @@
   "dependencies": {},
   "devDependencies": {
     "babelify": "^6.3.0",
+    "browser-process-hrtime": "^0.1.2",
     "browserify": "^10.2.4",
     "browserify-shim": "^3.8.9",
     "chrome-serialport": "^0.1.2",
@@ -35,7 +36,9 @@
     "grunt-exec": "^0.4.6",
     "grunt-open": "*",
     "grunt-template": "^0.2.3",
-    "johnny-five": "^0.9.19",
+    "j5-songs": "0.0.9",
+    "johnny-five": "^0.9.27",
+    "playground-io": "0.0.2",
     "serialport-transform": "^1.0.3"
   }
 }
