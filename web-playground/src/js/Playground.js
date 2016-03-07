@@ -129,6 +129,12 @@ export default class Playground {
     this.prewiredComponents.toggle = new five.Switch('21');
 
     this.prewiredComponents.piezo = new five.Piezo({pin: '5', controller: PlaygroundIO.Piezo})
+
+    this.prewiredComponents.thermometer = new five.Thermometer({
+      controller: "TINKERKIT",
+      pin: "A0",
+      freq: 100
+    });
   }
 
   setupPrewiredSandbox(five) {

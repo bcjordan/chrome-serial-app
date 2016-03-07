@@ -737,7 +737,24 @@ piezo.play({
   tempo: 250
 });
 `
-  }
+  },
+
+  14: {
+    instructions: "Now read the temperature.",
+
+    verificationFunction: function (verificationAPI) {
+      return true;
+    },
+
+    solutionCode: `
+
+thermometer.on("data", function() {
+  console.log("celsius: %d", this.C);
+  console.log("fahrenheit: %d", this.F);
+  console.log("kelvin: %d", this.K);
+});
+`
+  },
 };
 
 
