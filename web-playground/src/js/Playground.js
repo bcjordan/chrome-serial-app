@@ -104,7 +104,10 @@ export default class Playground {
   }
 
   setupPrewiredPlayground(five) {
-    this.prewiredComponents = this.prewiredComponents || {};
+    if (this.prewiredComponents) {
+      return;
+    }
+    this.prewiredComponents = {};
     this.prewiredComponents.pixels = Array.from({length: 10}, function (_, index) {
           return new five.Led.RGB({
             controller: PlaygroundIO.Pixel,
@@ -125,8 +128,7 @@ export default class Playground {
 
     this.prewiredComponents.toggle = new five.Switch('21');
 
-    this.prewiredComponents.piezo = this.prewiredComponents.piezo ||
-        new five.Piezo({pin: '5', controller: PlaygroundIO.Piezo})
+    this.prewiredComponents.piezo = new five.Piezo({pin: '5', controller: PlaygroundIO.Piezo})
   }
 
   setupPrewiredSandbox(five) {
@@ -215,19 +217,21 @@ export default class Playground {
 
       });
       console.log("Reset. Not closing board port.");
-      this.bridgeClient.five.Board.purge();
+      if (HARD_RESET) {
+        this.bridgeClient.five.Board.purge();
 
-      this.serialPort.close((e) => {
-        if (e) {
-          console.log(`Error closing serial port: ${e}`);
-          return;
-        }
+        this.serialPort.close((e) => {
+          if (e) {
+            console.log(`Error closing serial port: ${e}`);
+            return;
+          }
 
-        console.log("Closed serial port");
-        this.serialPort = null;
-        this.currentBoard.io = null;
-        this.currentBoard = null;
-      });
+          console.log("Closed serial port");
+          this.serialPort = null;
+          this.currentBoard.io = null;
+          this.currentBoard = null;
+        });
+      }
     }
   }
 }
