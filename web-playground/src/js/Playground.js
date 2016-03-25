@@ -47,6 +47,7 @@ export default class Playground {
 
         var runBoardCode = () => {
           this.setupPrewiredPlayground(five);
+          this.prewiredComponents.gyro.start();
 
           //board.on('error', () => {
           //});
@@ -88,10 +89,15 @@ export default class Playground {
             }
             var isCircuitPlayground = port.manufacturer.match(/LilyPad/);
             var isDigitalSandbox = port.manufacturer.match(/FT232R USB UART/);
-            return (isCircuitPlayground || isDigitalSandbox);
+            //return (isCircuitPlayground || isDigitalSandbox);
+            return port.comName.match(/tty/);
           });
+          console.log('done');
+          console.log(prewiredBoards);
+
           if (prewiredBoards.length > 0) {
             this.boardId = prewiredBoards[0].comName;
+            console.log(this.boardId);
           }
           runForPort();
         });
@@ -128,7 +134,7 @@ export default class Playground {
 
     this.prewiredComponents.toggle = new five.Switch('21');
 
-    this.prewiredComponents.piezo = new five.Piezo({pin: '5', controller: PlaygroundIO.Piezo})
+    this.prewiredComponents.piezo = new five.Piezo({pin: '5', controller: PlaygroundIO.Piezo});
 
     this.prewiredComponents.thermometer = new five.Thermometer({
       controller: "TINKERKIT",
@@ -143,6 +149,10 @@ export default class Playground {
     this.prewiredComponents.sound = new five.Sensor({
       pin: "A4",
       freq: 100
+    });
+    //
+    this.prewiredComponents.gyro = new five.Gyro({
+      controller: PlaygroundIO.Gyro
     });
   }
 

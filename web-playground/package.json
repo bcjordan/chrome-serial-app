@@ -37,6 +37,7 @@
     "grunt-open": "*",
     "grunt-template": "^0.2.3",
     "johnny-five": "^0.9.27",
+    "mocha": "^2.4.5",
     "playground-io": "0.0.2",
     "serialport-transform": "^1.0.3"
   }
