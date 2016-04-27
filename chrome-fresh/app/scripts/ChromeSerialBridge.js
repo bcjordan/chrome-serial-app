@@ -125,14 +125,29 @@ export default class ChromeSerialBridge {
         },
         construct: function () {
           console.log('construct');
-          var resp = {};
-          serialPort = new SerialPort.SerialPort(msg.path, msg.options, false, function (err) {
-            console.log(msg.op, 'err:', err);
-            if (err) {
-              resp.error = err.message;
-            }
-          });
-          responder(resp);
+          if (serialPort) {
+            console.log('Already connected, closing out.');
+            serialPort.flush(function (err, data) {
+              console.log('Flush completed.');
+              serialPort.close(function () {
+                console.log('Close completed.');
+                constructNewPort();
+              });
+            });
+          } else {
+            constructNewPort();
+          }
+
+          function constructNewPort () {
+            var resp = {};
+            serialPort = new SerialPort.SerialPort(msg.path, msg.options, false, function (err) {
+              console.log(msg.op, 'err:', err);
+              if (err) {
+                resp.error = err.message;
+              }
+            });
+            responder(resp);
+          }
         },
         open: function () {
           serialPort.open(function (err) {
