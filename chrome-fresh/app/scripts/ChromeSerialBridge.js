@@ -44,7 +44,10 @@ export default class ChromeSerialBridge {
      *   - flush
      */
 
+    var ports = [];
+
     chrome.runtime.onConnectExternal.addListener(function (port) {
+      ports.push(port);
       console.log('socket opened');
 
       serialPort.on('disconnect', function (err) {
@@ -94,7 +97,11 @@ export default class ChromeSerialBridge {
 
       port.onDisconnect.addListener(function () {
         console.log('socket disconnected');
-        serialPort.close();
+        var portIndex = ports.indexOf(port);
+        if (portIndex != -1) {
+          ports.splice(portIndex, 1);
+          serialPort.close();
+        }
       });
 
     });
@@ -132,8 +139,23 @@ export default class ChromeSerialBridge {
               serialPort.close(function () {
                 console.log('Close completed.');
                 constructNewPort();
+                // Notify connected ports they are done.
+                var copiedPortList = ports.slice();
+                console.log("Port length is " + ports.length);
+                for (var i = 0; i < copiedPortList.length; i++) {
+                  var portIndex = ports.indexOf(copiedPortList[i]);
+                  if (portIndex != -1) {
+                    ports.splice(portIndex, 1);
+                  }
+                  copiedPortList[i].postMessage({
+                    op: 'onDisconnect'
+                  });
+                }
+                ports.length = 0;
               });
             });
+
+            console.log('Already connected, closing out.');
           } else {
             constructNewPort();
           }
