@@ -1,13 +1,11 @@
-Work-in-progress Website (Johnny-Five) -> Chrome App -> Serial playground.
+Chrome App-based Serial Connector for the Code Studio Maker APIs.
 
 # Setup
 
-To start, install `npm`, and run `npm install` in the top level directory and both project directories.
+To start, install `npm`, and run `npm install`.
 
 1. Install node and npm. Most recently tested with node v0.12.7 and npm v2.9.1
 1. `npm install`
-1. `cd chrome-fresh && npm install && cd ..`
-1. `cd web-playground && npm install && cd ..`
 
 # Running code
 
@@ -15,16 +13,14 @@ To start, install `npm`, and run `npm install` in the top level directory and bo
 
 1. `grunt`
 
-This will start a development server for the playground page, launch Google Chrome with the Chrome App running, and live-reload both on changes.
+This will launch Google Chrome with your Chrome App running, and live-reload it on file changes.
 
-The first time you run this, you'll need to update `/build-config.js` to match your dev Chrome App's auto-assigned extension ID. See the note above the `chrome_dev_extension_id` key, fill it in, and re-run `grunt` to re-build.
+If you are using a chrome serial connector client (like `chrome-serial`, be sure to update the extension ID specified to the ID that Chrome assigns your extension (found in chrome://extensions).
 
-Test "levels" can be edited in `web-playground/src/test-build-only/levels.js`
-
-## Building both [& optional deploy to S3]
+## Building a .crx for distribution
 
 1. `npm install`
-1. `grunt deploy [--name=my-test-deploy]`
-  * This will generate a `.crx` suitable for uploading to the Chrome webstore.
-  * If s3 credentials are configured, the test playground page with a link to the .crx will be uploaded to the specified s3 folder.
- 
+1. Specify the path to a .pem file to sign the Chrome App in `build-config.js`, following instructions from [this Chrome page](https://developer.chrome.com/extensions/packaging#creating).
+1. `grunt deploy`
+  * This will generate a `.crx` suitable for uploading to the Chrome web store, and place it at `package/CDOSerialTest-NN.crx`, where `NN` is the manifest version number of the Chrome App.
+  * WARNING: If you deploy a Chrome App with a manifest.json that has added new permissions, some users may accidentally uninstall the app when being prompted about its permissions. Be careful and test the upgrade with a local version if making permissions changes (removing permissions should be fine and not require a prompt, though).

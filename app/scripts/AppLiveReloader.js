@@ -7,7 +7,7 @@
 
 export default class AppLiveReloader {
   constructor({chromeRuntime, host, port}) {
-    var connection = new WebSocket('ws://' + host + ':' + port + '/livereload');
+    const connection = new WebSocket('ws://' + host + ':' + port + '/livereload');
 
     connection.onerror = function (error) {
       console.log(`Reload connection error: ${JSON.stringify(error)}`);
@@ -15,7 +15,7 @@ export default class AppLiveReloader {
 
     connection.onmessage = (e) => {
       if (e.data) {
-        var data = JSON.parse(e.data);
+        const data = JSON.parse(e.data);
         if (data && data.command === 'reload') {
           this.reload(chromeRuntime);
         }

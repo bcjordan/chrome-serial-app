@@ -1,103 +1,193 @@
-/**
- * When running `grunt`, provides a live dev server at localhost:3017.
- * More details in ./README.md.
- */
+'use strict';
 
 module.exports = function (grunt) {
+  const buildConfig = require('./build-config.js');
+  const pemFile = buildConfig.chrome_signing_pem.replace('~', process.env['HOME']);
+
   require('load-grunt-tasks')(grunt);
 
-  var deployBuild = !!(grunt.cli.tasks.length && grunt.cli.tasks[0] === 'deploy');
-  var deployName = grunt.option("name") || "unnamed";
+  const deployBuild = grunt.cli.tasks.length && grunt.cli.tasks[0] === 'deploy';
 
-  var devBuildConfig = require('./build-config.js');
-  var s3KeysSpecified = !!devBuildConfig.s3_keys_file;
+  const pluginFolder = require('path').resolve() + '/dist';
 
+  const manifest = grunt.file.readJSON('app/manifest.json');
+  const packagePrefix = 'package/CDOSerialTest-' + (deployBuild ? parseInt(manifest.version, 10) + 1 : manifest.version);
+
+  // Define the configuration for all the tasks
   grunt.initConfig({
-    aws_keys: deployBuild && s3KeysSpecified ? grunt.file.readJSON(devBuildConfig.s3_keys_file.replace('~', process.env['HOME'])) : {},
-    aws_s3: {
-      options: {
-        access: 'public-read',
-        accessKeyId: '<%= aws_keys.AWSAccessKeyId %>',
-        secretAccessKey: '<%= aws_keys.AWSSecretKey %>',
-        uploadConcurrency: 20,
-        downloadConcurrency: 20,
-        region: 'us-west-1',
-        gzip: true
-      },
-      test: {
+    browserify: {
+      app: {
+        src: [deployBuild ?
+          'app/scripts/ExtensionController.js' :
+          'app/scripts/DevExtensionController.js'
+        ],
+        dest: 'dist/scripts/app.bundled.js',
         options: {
-          bucket: 'cdo-j5-test',
-          differential: true
-        },
-        files: [
-          {
-            expand: true,
-            cwd: 'web-playground/build/',
-            src: ['**'],
-            dest: deployName + '/'
+          transform: [
+            'babelify'
+          ],
+          watch: true,
+          browserifyOptions: {
+            // Adds inline source map to bundled package
+            debug: !deployBuild,
           },
-          {
-            expand: true,
-            cwd: 'chrome-fresh/package/',
-            src: ['CDOSerialTest-deploy.zip'],
-            dest: deployName + '/'
-          },
-          {
-            expand: true,
-            cwd: 'chrome-fresh/package/',
-            src: ['CDOSerialTest-deploy.crx'],
-            dest: deployName + '/'
-          },
-        ]
+        }
       }
     },
+
+    // Watches files for changes and runs tasks based on the changed files
+    watch: {
+      js: {
+        files: ['app/scripts/{,*/}*.js'],
+        tasks: ['browserify', 'copy'],
+        options: {
+          livereload: {
+            port: 35730
+          }
+        }
+      },
+      gruntfile: {
+        files: ['Gruntfile.js']
+      },
+    },
+
+    // Empties folders to start fresh
+    clean: {
+      dist: {
+        files: [{
+          dot: true,
+          src: [
+            'dist/*',
+            'package/*',
+          ]
+        }]
+      }
+    },
+
+    // Make sure code styles are up to par and there are no obvious mistakes
+    jshint: {
+      options: {
+        jshintrc: '.jshintrc',
+        reporter: require('jshint-stylish')
+      },
+      all: [
+        'Gruntfile.js',
+        'app/scripts/{,*/}*.js',
+        '!app/scripts/vendor/*',
+        'test/spec/{,*/}*.js'
+      ]
+    },
+
+    copy: {
+      dist: {
+        files: [{
+          expand: true,
+          dot: true,
+          cwd: 'app',
+          dest: 'dist',
+          src: [
+            '*.{ico,png,txt}',
+            'manifest.json',
+            'images/{,*/}*.{webp,gif,png}',
+            'styles/fonts/{,*/}*.*',
+            '_locales/{,*/}*.json',
+            '{,*/}*.js'
+          ]
+        }]
+      },
+    },
+
     concurrent: {
-      devBoth: ['exec:devChromeApp', 'exec:devWebPlayground'],
+      chromeOpenLiveReload: ['exec:appOpen', 'watch'],
       options: {
         logConcurrentOutput: true
       }
     },
-    open: {
-      deployed: {
-        path: 'https://s3-us-west-1.amazonaws.com/cdo-j5-test/' + deployName + '/index.html'
+
+    // Update build number, potentially exclude given script
+    chromeManifest: {
+      dist: {
+        options: {
+          buildnumber: true,
+          background: {
+            target: 'scripts/app.bundled.js',
+          }
+        },
+        src: 'app',
+        dest: 'dist'
       }
     },
+
+    // Compress files in dist to make installable Chrome Apps package
+    compress: {
+      dist: {
+        options: {
+          archive: function () {
+            return packagePrefix + '.zip';
+          }
+        },
+        files: [{
+          expand: true,
+          cwd: 'dist/',
+          src: ['**'],
+          dest: ''
+        }]
+      }
+    },
+
+    // Generates .crx bundle signed with pemfile
+    crx: {
+      dist: {
+        "src": "dist/**/*",
+        "dest": packagePrefix + '.crx',
+        "options": {
+          "privateKey": pemFile,
+        }
+      }
+    },
+
     exec: {
-      buildChromeApp: {
-        cmd: 'grunt distribute',
-        cwd: 'chrome-fresh'
+      appOpen: {
+        cmd: `~/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --load-and-launch-app="${pluginFolder}"`
       },
-      buildWebPlayground: {
-        cmd: "grunt distribute",
-        cwd: 'web-playground'
-      },
-      devChromeApp: {
-        cmd: 'grunt',
-        cwd: 'chrome-fresh'
-      },
-      devWebPlayground: {
-        cmd: "grunt",
-        cwd: 'web-playground'
+      checkPemSpecified: {
+        cmd: function () {
+          if (!!pemFile) {
+            throw 'No .pem signing file path specified.';
+          }
+          return true;
+        }
       }
     }
   });
 
-  grunt.registerTask('deploy',
-      s3KeysSpecified ?
-          ['build', 'uploadAndOpen'] :
-          ['build']);
+  grunt.registerTask('checkPemSpecified', 'Confirms .pem file is specified, complaining if not.',
+    function () {
+      if (pemFile) {
+        return true;
+      }
+
+      grunt.log.writeln('Create a .pem file at https://developer.chrome.com/extensions/packaging#creating');
+      grunt.log.writeln('And link to it in build-config.js');
+      return false;
+    });
 
   grunt.registerTask('build', [
-    'exec:buildChromeApp',
-    'exec:buildWebPlayground'
+    'clean:dist',
+    'browserify',
+    'copy'
   ]);
 
-  grunt.registerTask('uploadAndOpen', [
-    'aws_s3:test',
-    'open:deployed'
+  grunt.registerTask('deploy', [
+    'checkPemSpecified',
+    'chromeManifest:dist',
+    'build',
+    'compress:dist',
+    'crx:dist'
   ]);
 
   grunt.registerTask('default', [
-    'concurrent:devBoth'
+    'build',
+    'concurrent:chromeOpenLiveReload'
   ]);
 };

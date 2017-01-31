@@ -1,7 +1,7 @@
 {
     "name": "__MSG_appName__",
     "description": "__MSG_appDescription__",
-    "version": "24",
+    "version": "31",
     "manifest_version": 2,
     "default_locale": "en",
     "permissions": [
@@ -25,6 +25,9 @@
             "http://localhost:3017/*",
             "http://localhost:8000/*",
             "http://localhost.studio.code.org:3000/*",
+            "http://*.code.org/*",
+            "https://*.code.org/*",
+            "https://*.cdn-code.org/*",
             "https://s3-us-west-1.amazonaws.com/cdo-j5-test/*"
         ]
     }
