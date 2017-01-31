@@ -6,7 +6,7 @@
  */
 'use strict';
 
-var SerialPort = require('browser-serialport');
+import SerialPort from 'browser-serialport';
 
 export default class ChromeSerialBridge {
   constructor(chrome) {
