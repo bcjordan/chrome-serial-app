@@ -45,8 +45,6 @@ export default class ChromeSerialBridge {
      */
 
     var ports = [];
-    // var MAX_BUFFER = 1024;
-    // var buffer = new Uint8Array(MAX_BUFFER);
     var queue = [];
 
     chrome.runtime.onConnectExternal.addListener(function (port) {
@@ -77,7 +75,6 @@ export default class ChromeSerialBridge {
       });
 
       serialPort.on('data', function (data) {
-        //console.log('serialport data', new TextDecoder("utf-8").decode(data), data);
         var resp = {};
         resp.op = 'data';
         resp.data = data;
@@ -85,25 +82,23 @@ export default class ChromeSerialBridge {
       });
 
       function trySend(buffer) {
-        console.log('trySend called', queue.length, queue, buffer);
-
         if (buffer) {
           queue.push(buffer);
         }
 
         if (queue.length === 0) {
-          console.log('exhausted pending buffer');
+          // Exhausted pending send buffer.
           return;
+        }
+
+        if (queue.length > 512) {
+          throw new Error('Send queue is full! More than 512 pending messages.');
         }
 
         var toSend = queue.shift();
         serialPort.write(toSend, function (err, results) {
-          //console.log('write result', err, results);
           if (results.error) {
-            //console.warn('error:', results.error);
             queue.unshift(toSend);
-          } else if (results.bytesSent !== toSend.length) {
-            debugger;
           }
 
           if (queue.length !== 0) {
@@ -113,9 +108,6 @@ export default class ChromeSerialBridge {
       }
 
       port.onMessage.addListener(function (msg) {
-        console.log('socket received data');
-
-        console.log('socket received', msg);
         //check for string as well? or force buffer sends from other side...
         if (msg && msg.hasOwnProperty('data')) {
           var buffer = new Buffer(msg.data);
@@ -123,12 +115,9 @@ export default class ChromeSerialBridge {
         }
       });
 
-      port.onReceiveError.addListener(function (msg) {
-        console.info('recieve error', msg);
-      });
-
       port.onDisconnect.addListener(function () {
         console.log('socket disconnected');
+        queue.length = 0;
         var portIndex = ports.indexOf(port);
         if (portIndex != -1) {
           ports.splice(portIndex, 1);
