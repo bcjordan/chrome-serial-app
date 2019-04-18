@@ -148,7 +148,7 @@ module.exports = function (grunt) {
 
     exec: {
       appOpen: {
-        cmd: `~/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --load-and-launch-app="${pluginFolder}"`
+        cmd: `/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --load-and-launch-app="${pluginFolder}"`
       },
       checkPemSpecified: {
         cmd: function () {

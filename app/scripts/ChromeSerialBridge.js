@@ -45,6 +45,9 @@ export default class ChromeSerialBridge {
      */
 
     var ports = [];
+    // var MAX_BUFFER = 1024;
+    // var buffer = new Uint8Array(MAX_BUFFER);
+    var queue = [];
 
     chrome.runtime.onConnectExternal.addListener(function (port) {
       ports.push(port);
@@ -74,25 +77,54 @@ export default class ChromeSerialBridge {
       });
 
       serialPort.on('data', function (data) {
-        console.log('serialport data');
+        //console.log('serialport data', new TextDecoder("utf-8").decode(data), data);
         var resp = {};
         resp.op = 'data';
         resp.data = data;
         port.postMessage(resp);
       });
 
+      function trySend(buffer) {
+        console.log('trySend called', queue.length, queue, buffer);
+
+        if (buffer) {
+          queue.push(buffer);
+        }
+
+        if (queue.length === 0) {
+          console.log('exhausted pending buffer');
+          return;
+        }
+
+        var toSend = queue.shift();
+        serialPort.write(toSend, function (err, results) {
+          //console.log('write result', err, results);
+          if (results.error) {
+            //console.warn('error:', results.error);
+            queue.unshift(toSend);
+          } else if (results.bytesSent !== toSend.length) {
+            debugger;
+          }
+
+          if (queue.length !== 0) {
+            setTimeout(trySend, 0);
+          }
+        });
+      }
+
       port.onMessage.addListener(function (msg) {
         console.log('socket received data');
 
-        // console.log('socket received', msg);
+        console.log('socket received', msg);
         //check for string as well? or force buffer sends from other side...
         if (msg && msg.hasOwnProperty('data')) {
           var buffer = new Buffer(msg.data);
-          // console.log('writing to serial', buffer.toString('utf-8'));
-          serialPort.write(buffer, function (err, results) {
-            console.log(err, results);
-          });
+          trySend(buffer);
         }
+      });
+
+      port.onReceiveError.addListener(function (msg) {
+        console.info('recieve error', msg);
       });
 
       port.onDisconnect.addListener(function () {
