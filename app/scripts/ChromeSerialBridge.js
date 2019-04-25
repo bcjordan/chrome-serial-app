@@ -45,6 +45,7 @@ export default class ChromeSerialBridge {
      */
 
     var ports = [];
+    var queue = [];
 
     chrome.runtime.onConnectExternal.addListener(function (port) {
       ports.push(port);
@@ -74,29 +75,49 @@ export default class ChromeSerialBridge {
       });
 
       serialPort.on('data', function (data) {
-        console.log('serialport data');
         var resp = {};
         resp.op = 'data';
         resp.data = data;
         port.postMessage(resp);
       });
 
-      port.onMessage.addListener(function (msg) {
-        console.log('socket received data');
+      function trySend(buffer) {
+        if (buffer) {
+          queue.push(buffer);
+        }
 
-        // console.log('socket received', msg);
+        if (queue.length === 0) {
+          // Exhausted pending send buffer.
+          return;
+        }
+
+        if (queue.length > 512) {
+          throw new Error('Send queue is full! More than 512 pending messages.');
+        }
+
+        var toSend = queue.shift();
+        serialPort.write(toSend, function (err, results) {
+          if (results.error) {
+            queue.unshift(toSend);
+          }
+
+          if (queue.length !== 0) {
+            setTimeout(trySend, 0);
+          }
+        });
+      }
+
+      port.onMessage.addListener(function (msg) {
         //check for string as well? or force buffer sends from other side...
         if (msg && msg.hasOwnProperty('data')) {
           var buffer = new Buffer(msg.data);
-          // console.log('writing to serial', buffer.toString('utf-8'));
-          serialPort.write(buffer, function (err, results) {
-            console.log(err, results);
-          });
+          trySend(buffer);
         }
       });
 
       port.onDisconnect.addListener(function () {
         console.log('socket disconnected');
+        queue.length = 0;
         var portIndex = ports.indexOf(port);
         if (portIndex != -1) {
           ports.splice(portIndex, 1);
