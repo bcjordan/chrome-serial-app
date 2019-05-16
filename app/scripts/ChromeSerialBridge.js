@@ -46,6 +46,7 @@ export default class ChromeSerialBridge {
 
     var ports = [];
     var queue = [];
+    var sendPending = false;
 
     chrome.runtime.onConnectExternal.addListener(function (port) {
       ports.push(port);
@@ -86,7 +87,7 @@ export default class ChromeSerialBridge {
           queue.push(buffer);
         }
 
-        if (queue.length === 0) {
+        if (sendPending || queue.length === 0) {
           // Exhausted pending send buffer.
           return;
         }
@@ -96,13 +97,15 @@ export default class ChromeSerialBridge {
         }
 
         var toSend = queue.shift();
+        sendPending = true;
         serialPort.write(toSend, function (err, results) {
+          sendPending = false;
           if (results.error) {
             queue.unshift(toSend);
           }
 
           if (queue.length !== 0) {
-            setTimeout(trySend, 0);
+            trySend();
           }
         });
       }
